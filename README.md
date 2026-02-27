@@ -2,7 +2,7 @@
 
 ## 📁 Files
 ```
-index-3.html     ← Your portfolio website
+index-4.html     ← Your portfolio website
 admin.html       ← Bookings admin dashboard
 server.js        ← Node.js backend server
 bookings.json    ← All bookings stored here (auto-created)
