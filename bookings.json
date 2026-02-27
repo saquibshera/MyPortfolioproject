@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1772211312293,
+    "name": "furqan",
+    "email": "furqan@gmail.com",
+    "phone": "9622425267",
+    "company": "koenig",
+    "subject": "Azure DevOps (AZ-400)",
+    "trainingType": "Azure DevOps (AZ-400)",
+    "preferredDate": "march 05",
+    "message": "hey",
+    "status": "new",
+    "createdAt": "2026-02-27T16:55:12.293Z"
+  },
+  {
+    "id": 1772211127838,
+    "name": "danish",
+    "email": "danish@gmail.com",
+    "phone": "96565765675",
+    "company": "koenig",
+    "subject": "Azure DevOps (AZ-400)",
+    "trainingType": "Azure DevOps (AZ-400)",
+    "preferredDate": "march 2025",
+    "message": "I am looking for training",
+    "status": "new",
+    "createdAt": "2026-02-27T16:52:07.838Z"
+  }
+]
