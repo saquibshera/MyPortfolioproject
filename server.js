@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 
 // ── Middleware ──────────────────────────────────────────────
@@ -94,7 +94,5 @@ app.delete('/api/bookings/:id', (req, res) => {
 
 // ── Start ───────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`\n✅  Server running at http://localhost:${PORT}`);
-  console.log(`📋  Admin panel:   http://localhost:${PORT}/admin.html`);
-  console.log(`🔑  Admin password: ${process.env.ADMIN_KEY || 'saquib2025'}\n`);
+  console.log(`Server running on port ${PORT}`);
 });
