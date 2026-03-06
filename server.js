@@ -12,8 +12,8 @@ const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 // ── Email Configuration ─────────────────────────────────────
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD
