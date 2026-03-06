@@ -2,10 +2,21 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
+
+// ── Email Configuration ─────────────────────────────────────
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD
+  }
+});
 
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors());
@@ -21,6 +32,86 @@ function readBookings() {
 
 function writeBookings(data) {
   fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ── Helper: send email ──────────────────────────────────────
+async function sendEmail(booking) {
+  // Email to you (admin)
+  const adminMailOptions = {
+    from: process.env.GMAIL_USER,
+    to: process.env.GMAIL_USER,
+    subject: `📌 New Booking: ${booking.name}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2 style="color: #0066cc;">New Booking Received</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Name:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${booking.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Email:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;"><a href="mailto:${booking.email}">${booking.email}</a></td>
+          </tr>
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Phone:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${booking.phone || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Company:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${booking.company || 'N/A'}</td>
+          </tr>
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Training Type:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${booking.trainingType || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Preferred Date:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${booking.preferredDate || 'N/A'}</td>
+          </tr>
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Message:</strong></td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${booking.message}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 20px; color: #666;">
+          <em>Check your admin dashboard to manage this booking.</em>
+        </p>
+      </div>
+    `
+  };
+
+  // Confirmation email to user
+  const userMailOptions = {
+    from: process.env.GMAIL_USER,
+    to: booking.email,
+    subject: 'Booking Confirmation - Saquib Manzoor',
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2>Thank you for your interest, ${booking.name}!</h2>
+        <p>We have received your booking request and will get back to you shortly.</p>
+        <h3>Your Details:</h3>
+        <ul>
+          <li><strong>Subject:</strong> ${booking.subject || 'N/A'}</li>
+          <li><strong>Preferred Date:</strong> ${booking.preferredDate || 'N/A'}</li>
+          <li><strong>Training Type:</strong> ${booking.trainingType || 'N/A'}</li>
+        </ul>
+        <p style="margin-top: 20px; color: #666;">We will review your request and contact you soon.</p>
+        <p style="margin-top: 30px; color: #999; font-size: 12px;">
+          <em>This is an automated message. Please do not reply to this email.</em>
+        </p>
+      </div>
+    `
+  };
+
+  try {
+    // Send both emails
+    await transporter.sendMail(adminMailOptions);
+    await transporter.sendMail(userMailOptions);
+    console.log(`✅ Emails sent for booking ID: ${booking.id}`);
+  } catch (error) {
+    console.error(`❌ Email error for booking ID ${booking.id}:`, error.message);
+  }
 }
 
 // ── POST /api/book  — save a new booking ───────────────────
@@ -50,6 +141,10 @@ app.post('/api/book', (req, res) => {
   writeBookings(bookings);
 
   console.log(`[${new Date().toLocaleString()}] New booking from ${name} <${email}>`);
+  
+  // Send emails asynchronously (don't wait for completion)
+  sendEmail(booking);
+
   res.json({ ok: true, id: booking.id });
 });
 
