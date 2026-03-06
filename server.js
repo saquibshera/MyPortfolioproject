@@ -19,11 +19,30 @@ const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 //     pass: process.env.GMAIL_APP_PASSWORD
 //   }
 // });
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.GMAIL_USER,
+//     pass: process.env.GMAIL_APP_PASSWORD
+//   }
+// });
+
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  connectionTimeout: 10000,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD
+  }
+});
+
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("SMTP Error:", error);
+  } else {
+    console.log("SMTP server is ready");
   }
 });
 
