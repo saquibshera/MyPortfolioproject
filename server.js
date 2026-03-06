@@ -31,12 +31,25 @@ const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,
-  connectionTimeout: 10000,
+  connectionTimeout: 20000,
+  greetingTimeout: 20000,
+  socketTimeout: 20000,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD
   }
 });
+
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   connectionTimeout: 10000,
+//   auth: {
+//     user: process.env.GMAIL_USER,
+//     pass: process.env.GMAIL_APP_PASSWORD
+//   }
+// });
 
 transporter.verify(function (error, success) {
   if (error) {
