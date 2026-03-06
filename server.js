@@ -10,10 +10,17 @@ const PORT = process.env.PORT || 3000;
 const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 
 // ── Email Configuration ─────────────────────────────────────
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.gmail.com',
+//   port: 465,
+//   secure: true,
+//   auth: {
+//     user: process.env.GMAIL_USER,
+//     pass: process.env.GMAIL_APP_PASSWORD
+//   }
+// });
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: "gmail",
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD
