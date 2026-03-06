@@ -11,7 +11,9 @@ const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 
 // ── Email Configuration ─────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD
@@ -190,4 +192,17 @@ app.delete('/api/bookings/:id', (req, res) => {
 // ── Start ───────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Verify email configuration
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Email configuration error:', error.message);
+      console.log('\n⚠️  Email setup issue detected:');
+      console.log('1. Check if GMAIL_APP_PASSWORD is correct (16 characters, no spaces when setting)');
+      console.log('2. Verify 2-Step Verification is ENABLED on your Gmail account');
+      console.log('3. Make sure the App Password is recent (sometimes old ones expire)');
+    } else {
+      console.log('✅ Email service ready to send!');
+    }
+  });
 });
