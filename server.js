@@ -10,16 +10,42 @@ const PORT = process.env.PORT || 3000;
 const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 
 // ── Email Configuration ─────────────────────────────────────
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp.gmail.com',
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: process.env.GMAIL_USER,
+//     pass: process.env.GMAIL_APP_PASSWORD
+//   }
+// });
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: "smtp-relay.brevo.com",
   port: 587,
   secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_PASS
   }
 });
 
+
+async function testEmail() {
+  try {
+    const info = await transporter.sendMail({
+      from: `"Saquib" <${process.env.BREVO_USER}>`,
+      to: process.env.BREVO_USER,
+      subject: "Brevo Test",
+      text: "Working fine 🚀"
+    });
+
+    console.log("✅ Email sent:", info.response);
+  } catch (err) {
+    console.error("❌ Error:", err);
+  }
+}
+
+testEmail();
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
@@ -40,9 +66,7 @@ function writeBookings(data) {
 async function sendEmail(booking) {
   // Email to you (admin)
   const adminMailOptions = {
-    from: process.env.GMAIL_USER,
-    to: process.env.GMAIL_USER,
-    subject: `📌 New Booking: ${booking.name}`,
+  from: `"Saquib" <${process.env.SENDER_EMAIL}>`,  to: process.env.SENDER_EMAIL,  subject: `%F0%9F%93%8C New Booking: ${booking.name}`,
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <h2 style="color: #0066cc;">New Booking Received</h2>
@@ -85,9 +109,7 @@ async function sendEmail(booking) {
 
   // Confirmation email to user
   const userMailOptions = {
-    from: process.env.GMAIL_USER,
-    to: booking.email,
-    subject: 'Booking Confirmation - Saquib Manzoor',
+from: `"Saquib" <${process.env.SENDER_EMAIL}>`,  to: booking.email,  subject: 'Booking Confirmation - Saquib Manzoor',
     html: `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <h2>Thank you for your interest, ${booking.name}!</h2>
@@ -119,7 +141,7 @@ async function sendEmail(booking) {
 // ── POST /api/book  — save a new booking ───────────────────
 app.post('/api/book', (req, res) => {
   const { name, email, subject, message, phone, company, trainingType, preferredDate } = req.body;
-
+  console.log("called function");
   if (!name || !email || !message) {
     return res.status(400).json({ ok: false, error: 'Name, email and message are required.' });
   }
